@@ -1,0 +1,111 @@
+import tkinter as tk
+from tkinter import ttk
+import decimal
+
+def rozpodil_chastok_za_uchast(uchastniki, proyekti):
+    # ... (функція аналогічна попереднім, без змін) ...
+    # ...
+
+
+def update_rozpodil():
+    try:
+        uchastniki_data = {}
+        for i in range(len(uchastniki_listbox.get(0, tk.END))):
+            name = uczestniki_listbox.get(i).split(": ")[0]
+            project_data = {}
+            for j in range(len(projects_listbox.get(0, tk.END))):
+                project_name = projects_listbox.get(j).split(": ")[0]
+                hours = float(project_entry_var[j].get())
+                project_data[project_name] = hours
+
+            uchastniki_data[name] = project_data
+
+        proyekti_data = {}
+        for j in range(len(projects_listbox.get(0, tk.END))):
+            project_name = projects_listbox.get(j).split(": ")[0]
+            hours = float(project_value_var[j].get())
+            proyekti_data[project_name] = hours
+
+        rozpodil = rozpodil_chastok_za_uchast(uchastniki_data, proyekti_data)
+
+
+        if rozpodil:
+            result_text.delete("1.0", tk.END)
+            for name, share in rozpodil.items():
+                result_text.insert(tk.END, f"Учасник: {name}, Частка: {share.quantize(decimal.Decimal('0.00'))}\n")
+    except ValueError as e:
+        result_text.delete("1.0", tk.END)
+        result_text.insert(tk.END, f"Помилка: {e}\nВведіть коректні значення.")
+
+
+# ... (функція rozpodil_chastok_za_uchast - без змін) ...
+
+root = tk.Tk()
+root.title("Розрахунок часток")
+
+uchastniki_listbox = tk.Listbox(root, width=40)
+projects_listbox = tk.Listbox(root, width=40)
+
+
+project_entry_var = []
+project_value_var = []
+
+
+def add_project():
+    project_name = project_name_entry.get()
+    project_hours = project_hours_entry.get()
+
+    if not project_name or not project_hours:
+        result_text.insert(tk.END, "Помилка: Заповніть всі поля!\n")
+        return
+
+    try:
+        hours = float(project_hours)
+    except ValueError:
+        result_text.insert(tk.END, "Помилка: Неправильний формат введення! (Кількість годин)\n")
+        return
+    projects_listbox.insert(tk.END, f"Проект {project_name}:")
+    project_entry_var.append(tk.StringVar())
+    project_entry_var[-1].set(project_hours)  # Initialize with value
+
+
+    project_entry = ttk.Entry(root, textvariable=project_entry_var[-1])
+    project_entry.grid(row=len(project_entry_var) + 2, column=0)
+    
+    project_value_var.append(tk.StringVar())
+    project_value_var[-1].set('1000')
+    project_value_entry = ttk.Entry(root, textvariable=project_value_var[-1])
+    project_value_entry.grid(row=len(project_value_var) + 2, column=1)
+    
+    project_name_entry.delete(0, tk.END)
+    project_hours_entry.delete(0, tk.END)
+
+
+project_name_entry = ttk.Entry(root)
+project_hours_entry = ttk.Entry(root)
+
+add_button = ttk.Button(root, text="Додати проект", command=add_project)
+
+
+result_text = tk.Text(root, height=10, width=50)
+
+update_button = ttk.Button(root, text="Оновити розподіл", command=update_rozpodil)
+
+
+
+# Розміщення елементів
+uchastniki_listbox.grid(row=0, column=0, padx=5, pady=5)
+projects_listbox.grid(row=0, column=1, padx=5, pady=5)
+
+
+project_name_entry.grid(row=1, column=0, padx=5, pady=5)
+project_hours_entry.grid(row=1, column=1, padx=5, pady=5)
+add_button.grid(row=2, column=0, columnspan=2, padx=5, pady=5)
+result_text.grid(row=3, column=0, columnspan=2, padx=5, pady=5)
+
+
+update_button.grid(row=4, column=0, columnspan=2, padx=5, pady=5)
+
+
+
+root.mainloop()
